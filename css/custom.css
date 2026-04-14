@@ -1,35 +1,24 @@
-/* 页脚透明 */
+
+/* 页脚与头图透明 */
 #footer {
   background: transparent !important;
 }
-
-/* 侧边栏卡片、文章卡片透明 */
-#aside_content .card-widget,
-#recent-posts > .recent-post-item,
-.layout_page > div:first-child:not(.recent-posts),
-.layout_post > #page,
-.layout_post > #post,
-.read-mode .layout_post > #post {
+#page-header {
   background: transparent !important;
-  box-shadow: none !important;
 }
 
-/* 深色模式下的卡片背景透明 */
-[data-theme="dark"] #aside_content .card-widget,
-[data-theme="dark"] #recent-posts > .recent-post-item {
+/* 白天模式遮罩透明 */
+#footer::before {
   background: transparent !important;
-  box-shadow: none !important;
+}
+#page-header::before {
+  background: transparent !important;
 }
 
-/* 为 body 背景叠加暗色遮罩，使背景图变暗，与顶部文字更协调 */
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);  /* 0.4 可自行调整，数值越大越暗 */
-    pointer-events: none;  /* 让遮罩不干扰点击 */
-    z-index: -1;
+/* 夜间模式遮罩透明 */
+[data-theme="dark"] #footer::before {
+  background: transparent !important;
+}
+[data-theme="dark"] #page-header::before {
+  background: transparent !important;
 }
