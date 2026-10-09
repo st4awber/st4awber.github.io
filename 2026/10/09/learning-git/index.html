@@ -1,0 +1,496 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>今天学了 git：一个新手理解的源代码管理 | SoftPane</title><meta name="author" content="st4awber"><meta name="copyright" content="st4awber"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#6c7ae0"><meta name="description" content="从&quot;源代码管理&quot;是什么都说不清，到自己会看历史、会回退、会分辨两条历史线。记录今天学 git 的过程，也记录一点关于用 AI 的感想。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="今天学了 git：一个新手理解的源代码管理">
+<meta property="og:url" content="https://st4awber.github.io/2026/10/09/learning-git/index.html">
+<meta property="og:site_name" content="SoftPane">
+<meta property="og:description" content="从&quot;源代码管理&quot;是什么都说不清，到自己会看历史、会回退、会分辨两条历史线。记录今天学 git 的过程，也记录一点关于用 AI 的感想。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://st4awber.github.io/img/mmexport1776158411218.jpg">
+<meta property="article:published_time" content="2026-10-09T14:40:00.000Z">
+<meta property="article:modified_time" content="2026-10-09T14:43:42.089Z">
+<meta property="article:author" content="st4awber">
+<meta property="article:tag" content="git">
+<meta property="article:tag" content="建站">
+<meta property="article:tag" content="版本控制">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://st4awber.github.io/img/mmexport1776158411218.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "今天学了 git：一个新手理解的源代码管理",
+  "url": "https://st4awber.github.io/2026/10/09/learning-git/",
+  "image": "https://st4awber.github.io/img/mmexport1776158411218.jpg",
+  "datePublished": "2026-10-09T14:40:00.000Z",
+  "dateModified": "2026-10-09T14:43:42.089Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "st4awber",
+      "url": "https://st4awber.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://st4awber.github.io/2026/10/09/learning-git/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#6c7ae0')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)')
+          const mediaQueryLight = window.matchMedia('(prefers-color-scheme: light)')
+
+          if (theme === undefined) {
+            if (mediaQueryLight.matches) activateLightMode()
+            else if (mediaQueryDark.matches) activateDarkMode()
+            else {
+              const hour = new Date().getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            mediaQueryDark.addEventListener('change', () => {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else {
+            theme === 'light' ? activateLightMode() : activateDarkMode()
+          }
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '今天学了 git：一个新手理解的源代码管理',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Chakra+Petch:wght@600;700&display=swap"><meta name="generator" content="Hexo 8.1.1"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/img/bg.avif);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/mmexport1776158411218.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">SoftPane</span></a><a class="nav-page-title" href="/"><span class="site-name">今天学了 git：一个新手理解的源代码管理</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">今天学了 git：一个新手理解的源代码管理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-10-09T14:40:00.000Z" title="发表于 2026-10-09 22:40:00">2026-10-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-10-09T14:43:42.089Z" title="更新于 2026-10-09 22:43:42">2026-10-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%98%E8%85%BE%E8%AE%B0%E5%BD%95/">折腾记录</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><blockquote>
+<p><strong>写在最前面</strong>：这篇是借助 <strong>DSH</strong> 写出来的。我提供思路和经历，它帮我把话说清楚、把命令写准。<br>这一点我不想含糊——毕竟下面这些内容里，有一部分确实是它替我梳理的。</p>
+</blockquote>
+<h2 id="先说一个感慨"><a href="#先说一个感慨" class="headerlink" title="先说一个感慨"></a>先说一个感慨</h2><p>今天最大的感受是：<strong>用 AI 学东西，真的方便得有点不真实。</strong></p>
+<p>以前遇到”git 是什么、怎么回滚”这类问题，我要么在搜索引擎里翻十几篇文章，<br>要么在论坛里问、等回复、再自己试错。现在可以直接问，而且能拿到<strong>针对我这个具体项目</strong>的答案——<br>不是泛泛的教程，是”你这台机器上这条命令会走哪条通道、失败了怎么办”。</p>
+<p>但今天也让我看清了另一件事：<strong>方便不等于省事。</strong></p>
+<p>工具帮你把动作做完了，<strong>判断和验证还是得自己来</strong>。今天有两个例子让我印象特别深，下面会写。</p>
+<h2 id="学-git-之前，我连这个词都说不清"><a href="#学-git-之前，我连这个词都说不清" class="headerlink" title="学 git 之前，我连这个词都说不清"></a>学 git 之前，我连这个词都说不清</h2><p>在跟 DSH 聊之前，我自己先看了一些 git 的基础。</p>
+<p>我原来对 git 的理解大概是：<strong>“一个能保存代码历史的东西”</strong>。<br>再具体一点就说不出来了——什么是提交、什么是分支、什么叫远端，都是模糊的。</p>
+<p>自己看了一遍之后，我至少搞明白了**”源代码管理”（Source Control）这个概念本身是干什么的**：</p>
+<blockquote>
+<p>它管理的不是”代码”，而是<strong>代码的变化过程</strong>。<br>你每做一次改动就存一个档，标上说明。以后想看看”三天前那个能跑的版本长什么样”，<br>或者”这次改坏了，退回去”，都能做。</p>
+</blockquote>
+<p>理解了这一点，再看命令就不觉得是在背咒语了：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>它在干什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>git status</code></td>
+<td>现在有哪些文件改了、还没存档</td>
+</tr>
+<tr>
+<td><code>git add</code></td>
+<td>把改动<strong>放进这次要存的范围</strong></td>
+</tr>
+<tr>
+<td><code>git commit</code></td>
+<td><strong>存一个档</strong>，配一句说明</td>
+</tr>
+<tr>
+<td><code>git log</code></td>
+<td>看所有存档点</td>
+</tr>
+<tr>
+<td><code>git push</code></td>
+<td>把存档同步到远端（GitHub）</td>
+</tr>
+</tbody></table>
+<p><strong>存了档才能回退</strong>——这是我今天最重要的一个观念转变。<br>以前我以为”回退”是某种魔法，其实它只是”回到某个存档点”。</p>
+<h2 id="真正让我搞明白的，是把它套到自己的项目上"><a href="#真正让我搞明白的，是把它套到自己的项目上" class="headerlink" title="真正让我搞明白的，是把它套到自己的项目上"></a>真正让我搞明白的，是把它套到自己的项目上</h2><p>概念懂了，但一放到我这个博客上就乱了：<strong>我这里有两个仓库</strong>。</p>
+<p>DSH 帮我理清之后我才明白，git 在我这个站点里扮演的是<strong>两种完全不同的角色</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>仓库</th>
+<th>git 在这里做什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>st4awber-hexo-source</code>（源码）</td>
+<td><strong>真正的版本管理</strong> —— 每个提交是存档点，能对比、能回退</td>
+</tr>
+<tr>
+<td><code>st4awber.github.io</code>（网页）</td>
+<td><strong>只是个投递通道</strong> —— 被自动构建整棵覆盖，历史没有意义</td>
+</tr>
+</tbody></table>
+<p>这里有个特别反直觉的点，我记下来了：</p>
+<blockquote>
+<p><strong>回滚网站，根本不需要动那个网页仓库。</strong><br>因为线上是从源码<strong>重新生成</strong>的——我把源码退回旧状态再推一次，<br>重新生成出来的就是旧网站。</p>
+</blockquote>
+<p>我以前一直以为”网站的文件”才是正主，<strong>其实它只是生成物</strong>。<br>真正的”原稿”是源码仓库，而版本管理的价值全在那边。</p>
+<h2 id="我踩过的一个认知坑：把”备份”当成源代码管理"><a href="#我踩过的一个认知坑：把”备份”当成源代码管理" class="headerlink" title="我踩过的一个认知坑：把”备份”当成源代码管理"></a>我踩过的一个认知坑：把”备份”当成源代码管理</h2><p>写第一篇文章的时候我提过：四月我重装系统，本地源码没备份，项目就搁置了。</p>
+<p>今天我才意识到，<strong>那不只是”没备份”的问题</strong>。</p>
+<p>就算我当时备份了文件夹，如果<strong>没有提交历史</strong>，那我照样不知道：</p>
+<ul>
+<li>哪次改动把东西弄坏了</li>
+<li>三天前那个能跑的版本是什么样</li>
+<li>这个文件为什么变成现在这样</li>
+</ul>
+<p><strong>备份保存的是”最后一刻”，源代码管理保存的是”整个过程”。</strong> 这是两件事。</p>
+<h2 id="一个意外的发现：本地和远端可以是两条历史线"><a href="#一个意外的发现：本地和远端可以是两条历史线" class="headerlink" title="一个意外的发现：本地和远端可以是两条历史线"></a>一个意外的发现：本地和远端可以是两条历史线</h2><p>查我这个仓库的时候发现一件怪事：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>提交数</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>远端（GitHub）</td>
+<td>11 个</td>
+<td>4 月的 3 个原创 + 后来推的 8 个</td>
+</tr>
+<tr>
+<td>本地（我的电脑）</td>
+<td>17 个</td>
+<td>恢复源码之后的所有提交</td>
+</tr>
+</tbody></table>
+<p><strong>两边文件内容一模一样，但提交历史是两条独立的线。</strong></p>
+<p>为什么会这样，我大致明白了：</p>
+<ul>
+<li>四月那次，本地文件丢了，但<strong>远端的提交历史还在</strong>（里面还有我最初的三个提交：<br><code>初始化 Hexo 博客源码</code>、<code>更新部分美化+功能</code>、<code>美化</code>）</li>
+<li>后来恢复源码时，这台机器上还没装 git，只能<strong>新建</strong>一个仓库——内容补回来了，<strong>历史没继承</strong></li>
+<li>再后来推送时，<code>git push</code> 在这个网络下连不上 GitHub，只能走 GitHub 的 API 推送。<br>API 推送的方式是”以远端当前提交为父提交，把当前文件打成一个新快照”，<br>所以<strong>远端的历史一直保留着</strong>，而我本地是另一条更细的线</li>
+</ul>
+<p><strong>这件事让我理解了 git 一个很重要的性质：历史是”链条”，内容一样不代表历史一样。</strong></p>
+<p>只要内容对得上，两条线并存也不影响使用。但这也带来一个真实的风险，见下面。</p>
+<h2 id="回滚：我搞清楚了三种情况"><a href="#回滚：我搞清楚了三种情况" class="headerlink" title="回滚：我搞清楚了三种情况"></a>回滚：我搞清楚了三种情况</h2><p>这是我最想学会的东西——<strong>“改坏了怎么办”</strong>。</p>
+<h3 id="情况一：改动还没存档，想丢掉"><a href="#情况一：改动还没存档，想丢掉" class="headerlink" title="情况一：改动还没存档，想丢掉"></a>情况一：改动还没存档，想丢掉</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git status                              <span class="comment"># 先看改了哪些</span></span><br><span class="line">git checkout <span class="literal">--</span> source\_posts\某篇.md    <span class="comment"># 丢掉单个文件的改动</span></span><br><span class="line">git checkout <span class="literal">--</span> .                       <span class="comment"># 丢掉全部（谨慎）</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="情况二：已经存档了，想撤销这次存档"><a href="#情况二：已经存档了，想撤销这次存档" class="headerlink" title="情况二：已经存档了，想撤销这次存档"></a>情况二：已经存档了，想撤销这次存档</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git log <span class="literal">--oneline</span>        <span class="comment"># 找到那个存档点</span></span><br><span class="line">git revert &lt;提交号&gt;       <span class="comment"># 生成一个&quot;反向提交&quot;，抵消掉它</span></span><br></pre></td></tr></table></figure>
+
+<p><code>revert</code> 的特点是<strong>不删历史</strong>——它只是加一个新提交把改动抵消。这对新手最友好。</p>
+<h3 id="情况三：让线上网站回到旧版本（真正的回滚）"><a href="#情况三：让线上网站回到旧版本（真正的回滚）" class="headerlink" title="情况三：让线上网站回到旧版本（真正的回滚）"></a>情况三：让线上网站回到旧版本（真正的回滚）</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git log <span class="literal">--oneline</span>                     <span class="comment"># 1. 找到要回去的存档点</span></span><br><span class="line">git reset <span class="literal">--hard</span> &lt;目标提交号&gt;          <span class="comment"># 2. 本地彻底回到那个状态</span></span><br><span class="line">git status                            <span class="comment"># 3. 确认干净</span></span><br><span class="line">pwsh ... <span class="built_in">publish-changes</span>.ps1          <span class="comment"># 4. 推送 → GitHub 重建 → 线上回滚</span></span><br></pre></td></tr></table></figure>
+
+<p>第 4 步有个细节我记下来了：<code>reset --hard</code> 之后工作区是<strong>干净的</strong>，<br>所以日常那个发布脚本会认为”没东西可发”而退出——<strong>回滚要用另一个脚本</strong><br>（<code>import-via-git-api.ps1</code>），它是”不管有没有变化，直接把当前完整状态推上去”。</p>
+<h2 id="唯一绝对不能做的事"><a href="#唯一绝对不能做的事" class="headerlink" title="唯一绝对不能做的事"></a>唯一绝对不能做的事</h2><p><strong>不要 <code>git push --force</code>（强推）。</strong></p>
+<p>这是我今天听到的最重的警告。原因就在上面那个”两条历史线”：<br>本地和远端是两条无关的线，强推会用本地历史<strong>覆盖掉远端</strong>，<br>那我四月那三个原创提交就永远没了。</p>
+<p>DSH 特意把远端那三个提交的哈希列出来给我看，说”这些请保住”。<br>我觉得这个做法很对——<strong>不是笼统地说”小心点”，而是把具体会失去什么摆出来。</strong></p>
+<h2 id="救命命令：git-reflog"><a href="#救命命令：git-reflog" class="headerlink" title="救命命令：git reflog"></a>救命命令：<code>git reflog</code></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git reflog</span><br></pre></td></tr></table></figure>
+
+<p>这个命令会记录<strong>你做过的所有操作</strong>，包括被 <code>reset</code> 掉的、看起来已经”走远”的提交。</p>
+<p>理解了这一点，我对 git 的恐惧感少了一大半：</p>
+<blockquote>
+<p><strong>改坏了不可怕。</strong> 只要你别强推，绝大多数错误都能找回来。</p>
+</blockquote>
+<h2 id="两个让我改变看法的瞬间"><a href="#两个让我改变看法的瞬间" class="headerlink" title="两个让我改变看法的瞬间"></a>两个让我改变看法的瞬间</h2><p>今天有两件事，让我对”用 AI 学东西”这件事的看法具体了很多。</p>
+<h3 id="第一件：AI-也会犯错，而且错得很隐蔽"><a href="#第一件：AI-也会犯错，而且错得很隐蔽" class="headerlink" title="第一件：AI 也会犯错，而且错得很隐蔽"></a>第一件：AI 也会犯错，而且错得很隐蔽</h3><p>改鼠标拖尾效果的时候，脚本突然整个失效了——拖尾没了、鼠标点击的粒子也没了。</p>
+<p>查出来的原因很典型：<strong>它自己做全局替换时误伤了变量定义</strong>，<br>把一个取时间的辅助函数写成了”调用自己”，于是脚本一执行就无限递归、直接崩溃。</p>
+<p>值得说的是<strong>它怎么发现并修好的</strong>：</p>
+<ol>
+<li>它没有靠”看起来对”——而是写了个最小的 DOM 桩，<strong>在 Node 里把那个脚本真的跑了一遍</strong>，<br>确认”初始化成功，没有抛错”</li>
+<li>修完之后还专门核对：<code>return now()</code> 这种自调用<strong>已经不存在</strong></li>
+</ol>
+<p><strong>这件事告诉我：AI 的执行力很强，但它也需要”验证”这一步。</strong><br>而验证这件事，有时候需要一个外部的人说”不对，还是没效果”。</p>
+<h3 id="第二件：我的一个观察，帮它纠正了方向"><a href="#第二件：我的一个观察，帮它纠正了方向" class="headerlink" title="第二件：我的一个观察，帮它纠正了方向"></a>第二件：我的一个观察，帮它纠正了方向</h3><p>还有一个 bug 更离奇：<strong>浅色模式下整个页面发黑</strong>，深色模式却完全正常。</p>
+<p>它查了一圈 CSS，说”代码里没有任何规则会让浅色变黑”。</p>
+<p><strong>我随口提了一句我的操作方式</strong>：我是用<strong>网页右下角的齿轮</strong>切换深浅色的——<br>结果这句话让它想到了方向：问题不在网站代码，而在<strong>浏览器装的深色模式扩展</strong>。<br>那个扩展在强行给”浅色页面”反色，<code>body</code> 背景被它改成了 <code>#181a1b</code>——<br>一个<strong>我的 CSS 里根本不存在</strong>的颜色。</p>
+<p><strong>这就是我想说的</strong>：AI 能查得比我快一万倍，但它不知道我的操作细节。<br><strong>“我是怎么点的”这种信息，只有我知道。</strong> 我给了一条线索，它就省下了一大圈弯路。</p>
+<h2 id="所以关于用-AI，我的结论是"><a href="#所以关于用-AI，我的结论是" class="headerlink" title="所以关于用 AI，我的结论是"></a>所以关于用 AI，我的结论是</h2><p><strong>方便是真的方便，但它改变的是我该做什么，不是让我什么都不用做。</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>以前</th>
+<th>现在</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>查资料</td>
+<td>翻十几篇文章</td>
+<td>直接问，还能问得很具体</td>
+</tr>
+<tr>
+<td>试错</td>
+<td>自己反复撞墙</td>
+<td>它帮我撞，把坑列出来</td>
+</tr>
+<tr>
+<td><strong>我的工作</strong></td>
+<td>敲命令、记语法</td>
+<td><strong>提供信息 + 判断结果</strong></td>
+</tr>
+</tbody></table>
+<p>今天最值钱的几件事都是这么发生的：</p>
+<ul>
+<li>我告诉它”我是用齿轮切换的” → 它找到了真正的 bug</li>
+<li>我告诉它”拖尾还是没出来” → 它才去查那个无限递归</li>
+<li>我把 Vercel 的截图发过去 → 它才定位到评论那三个叠加的坑</li>
+</ul>
+<p><strong>我不是在”用”它，更像是在”带”它</strong> —— 我提供现场，它负责跑腿和整理。</p>
+<p>对我这种新手来说，这个分工其实挺好的：<br><strong>我不用先花三个月学会所有语法，才能开始做一件想做的事。</strong></p>
+<h2 id="接下来"><a href="#接下来" class="headerlink" title="接下来"></a>接下来</h2><p>我打算把 git 用得更自然一些——<strong>不只是在发布的时候用，而是养成”改一段就存一个档”的习惯。</strong></p>
+<p>毕竟今天才真正明白：<strong>存档不是为了发布，是为了让自己敢改。</strong></p>
+<p>改坏了能退回去，才敢大胆地试。</p>
+<hr>
+<p><em>这篇的 git 操作细节，我整理进了站点的<a target="_blank" rel="noopener" href="https://github.com/st4awber/st4awber-hexo-source/blob/master/docs/%E6%96%B0%E6%89%8B%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C.md">新手操作手册</a>（第 13 节），包括那两个仓库的分工、回滚的三种情况，以及为什么不能强推。</em></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://st4awber.github.io">st4awber</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://st4awber.github.io/2026/10/09/learning-git/">https://st4awber.github.io/2026/10/09/learning-git/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://st4awber.github.io" target="_blank">SoftPane</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%BB%BA%E7%AB%99/">建站</a><a class="post-meta__tags" href="/tags/git/">git</a><a class="post-meta__tags" href="/tags/%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/">版本控制</a></div><div class="post-share"><div class="social-share" data-image="/img/mmexport1776158411218.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/09/18/building-this-blog/" title="从零把这个博客修好：一次真正走完的搭建过程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">从零把这个博客修好：一次真正走完的搭建过程</div></div><div class="info-2"><div class="info-item-1">一个搁置了五个月的想法今年四月，我因为一阵突然的热情，想给自己弄一个独立的博客。 那时候学了一点东西：Hexo 能把我写的 Markdown 变成静态网页，Butterfly 主题能让它看起来像样，GitHub Pages 能免费托管，hexo deploy 能一键发布。照着教程走一遍，站点确实跑起来了——首页有背景图，头像能转，还有鼠标拖尾。 然后就没有然后了。 后来重装系统，本地那份源码没备份。等我再想起来的时候，本地是空的，线上只剩两个仓库：一个装着编译好的网页，一个装着源码——而源码那个，我连它叫什么作用都忘了。 这件事就这么搁着，一直到今天。 今天为什么又捡起来了最近在写简历，需要放一个作品链接。翻出这个半成品，看着那个只有一篇 “Hello World” 的站点，突然觉得有点不甘心——它不是做不成，是我没做完。 于是今天借助 DSH，把它从”能看”推到了”能用”。 为什么源码还在，却打不开了这是今天第一个、也是最要命的问题。 我手上其实有源码仓库，git clone 下来一看，主题文件夹是空的。 查了半天才明白：这个仓库里 themes/butterfly 是一个 g...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/09/18/building-this-blog/" title="从零把这个博客修好：一次真正走完的搭建过程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-18</div><div class="info-item-2">从零把这个博客修好：一次真正走完的搭建过程</div></div><div class="info-2"><div class="info-item-1">一个搁置了五个月的想法今年四月，我因为一阵突然的热情，想给自己弄一个独立的博客。 那时候学了一点东西：Hexo 能把我写的 Markdown 变成静态网页，Butterfly 主题能让它看起来像样，GitHub Pages 能免费托管，hexo deploy 能一键发布。照着教程走一遍，站点确实跑起来了——首页有背景图，头像能转，还有鼠标拖尾。 然后就没有然后了。 后来重装系统，本地那份源码没备份。等我再想起来的时候，本地是空的，线上只剩两个仓库：一个装着编译好的网页，一个装着源码——而源码那个，我连它叫什么作用都忘了。 这件事就这么搁着，一直到今天。 今天为什么又捡起来了最近在写简历，需要放一个作品链接。翻出这个半成品，看着那个只有一篇 “Hello World” 的站点，突然觉得有点不甘心——它不是做不成，是我没做完。 于是今天借助 DSH，把它从”能看”推到了”能用”。 为什么源码还在，却打不开了这是今天第一个、也是最要命的问题。 我手上其实有源码仓库，git clone 下来一看，主题文件夹是空的。 查了半天才明白：这个仓库里 themes/butterfly 是一个 g...</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/mmexport1776158411218.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">st4awber</div><div class="author-info-description">A gentle mix of code, comfort, and curiosity.</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/st4awber"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/st4awber" target="_blank" title="GitHub"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:3367056854@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%88%E8%AF%B4%E4%B8%80%E4%B8%AA%E6%84%9F%E6%85%A8"><span class="toc-number">1.</span> <span class="toc-text">先说一个感慨</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%A6-git-%E4%B9%8B%E5%89%8D%EF%BC%8C%E6%88%91%E8%BF%9E%E8%BF%99%E4%B8%AA%E8%AF%8D%E9%83%BD%E8%AF%B4%E4%B8%8D%E6%B8%85"><span class="toc-number">2.</span> <span class="toc-text">学 git 之前，我连这个词都说不清</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9C%9F%E6%AD%A3%E8%AE%A9%E6%88%91%E6%90%9E%E6%98%8E%E7%99%BD%E7%9A%84%EF%BC%8C%E6%98%AF%E6%8A%8A%E5%AE%83%E5%A5%97%E5%88%B0%E8%87%AA%E5%B7%B1%E7%9A%84%E9%A1%B9%E7%9B%AE%E4%B8%8A"><span class="toc-number">3.</span> <span class="toc-text">真正让我搞明白的，是把它套到自己的项目上</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%91%E8%B8%A9%E8%BF%87%E7%9A%84%E4%B8%80%E4%B8%AA%E8%AE%A4%E7%9F%A5%E5%9D%91%EF%BC%9A%E6%8A%8A%E2%80%9D%E5%A4%87%E4%BB%BD%E2%80%9D%E5%BD%93%E6%88%90%E6%BA%90%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86"><span class="toc-number">4.</span> <span class="toc-text">我踩过的一个认知坑：把”备份”当成源代码管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E6%84%8F%E5%A4%96%E7%9A%84%E5%8F%91%E7%8E%B0%EF%BC%9A%E6%9C%AC%E5%9C%B0%E5%92%8C%E8%BF%9C%E7%AB%AF%E5%8F%AF%E4%BB%A5%E6%98%AF%E4%B8%A4%E6%9D%A1%E5%8E%86%E5%8F%B2%E7%BA%BF"><span class="toc-number">5.</span> <span class="toc-text">一个意外的发现：本地和远端可以是两条历史线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9E%E6%BB%9A%EF%BC%9A%E6%88%91%E6%90%9E%E6%B8%85%E6%A5%9A%E4%BA%86%E4%B8%89%E7%A7%8D%E6%83%85%E5%86%B5"><span class="toc-number">6.</span> <span class="toc-text">回滚：我搞清楚了三种情况</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%83%85%E5%86%B5%E4%B8%80%EF%BC%9A%E6%94%B9%E5%8A%A8%E8%BF%98%E6%B2%A1%E5%AD%98%E6%A1%A3%EF%BC%8C%E6%83%B3%E4%B8%A2%E6%8E%89"><span class="toc-number">6.1.</span> <span class="toc-text">情况一：改动还没存档，想丢掉</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%83%85%E5%86%B5%E4%BA%8C%EF%BC%9A%E5%B7%B2%E7%BB%8F%E5%AD%98%E6%A1%A3%E4%BA%86%EF%BC%8C%E6%83%B3%E6%92%A4%E9%94%80%E8%BF%99%E6%AC%A1%E5%AD%98%E6%A1%A3"><span class="toc-number">6.2.</span> <span class="toc-text">情况二：已经存档了，想撤销这次存档</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%83%85%E5%86%B5%E4%B8%89%EF%BC%9A%E8%AE%A9%E7%BA%BF%E4%B8%8A%E7%BD%91%E7%AB%99%E5%9B%9E%E5%88%B0%E6%97%A7%E7%89%88%E6%9C%AC%EF%BC%88%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%9B%9E%E6%BB%9A%EF%BC%89"><span class="toc-number">6.3.</span> <span class="toc-text">情况三：让线上网站回到旧版本（真正的回滚）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%94%AF%E4%B8%80%E7%BB%9D%E5%AF%B9%E4%B8%8D%E8%83%BD%E5%81%9A%E7%9A%84%E4%BA%8B"><span class="toc-number">7.</span> <span class="toc-text">唯一绝对不能做的事</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%91%E5%91%BD%E5%91%BD%E4%BB%A4%EF%BC%9Agit-reflog"><span class="toc-number">8.</span> <span class="toc-text">救命命令：git reflog</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%A4%E4%B8%AA%E8%AE%A9%E6%88%91%E6%94%B9%E5%8F%98%E7%9C%8B%E6%B3%95%E7%9A%84%E7%9E%AC%E9%97%B4"><span class="toc-number">9.</span> <span class="toc-text">两个让我改变看法的瞬间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E4%BB%B6%EF%BC%9AAI-%E4%B9%9F%E4%BC%9A%E7%8A%AF%E9%94%99%EF%BC%8C%E8%80%8C%E4%B8%94%E9%94%99%E5%BE%97%E5%BE%88%E9%9A%90%E8%94%BD"><span class="toc-number">9.1.</span> <span class="toc-text">第一件：AI 也会犯错，而且错得很隐蔽</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E4%BB%B6%EF%BC%9A%E6%88%91%E7%9A%84%E4%B8%80%E4%B8%AA%E8%A7%82%E5%AF%9F%EF%BC%8C%E5%B8%AE%E5%AE%83%E7%BA%A0%E6%AD%A3%E4%BA%86%E6%96%B9%E5%90%91"><span class="toc-number">9.2.</span> <span class="toc-text">第二件：我的一个观察，帮它纠正了方向</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%80%E4%BB%A5%E5%85%B3%E4%BA%8E%E7%94%A8-AI%EF%BC%8C%E6%88%91%E7%9A%84%E7%BB%93%E8%AE%BA%E6%98%AF"><span class="toc-number">10.</span> <span class="toc-text">所以关于用 AI，我的结论是</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A5%E4%B8%8B%E6%9D%A5"><span class="toc-number">11.</span> <span class="toc-text">接下来</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/09/learning-git/" title="今天学了 git：一个新手理解的源代码管理">今天学了 git：一个新手理解的源代码管理</a><time datetime="2026-10-09T14:40:00.000Z" title="发表于 2026-10-09 22:40:00">2026-10-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/18/building-this-blog/" title="从零把这个博客修好：一次真正走完的搭建过程">从零把这个博客修好：一次真正走完的搭建过程</a><time datetime="2026-09-18T13:30:00.000Z" title="发表于 2026-09-18 21:30:00">2026-09-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/04/14/hello-world/" title="Hello World">Hello World</a><time datetime="2026-04-14T07:17:35.125Z" title="发表于 2026-04-14 15:17:35">2026-04-14</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By st4awber</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div><div class="footer_custom_text">Powered by Hexo & Butterfly</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5-b1"></script><script src="/js/main.js?v=5.5.5-b1"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.9/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(async () => {
+  const showKatex = () => {
+    document.querySelectorAll('#article-container .katex').forEach(el => el.classList.add('katex-show'))
+  }
+
+  if (!window.katex_js_css) {
+    window.katex_js_css = true
+    await btf.getCSS('https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/katex.min.css')
+    if (false) {
+      await btf.getScript('https://cdn.jsdelivr.net/npm/katex@0.16.28/dist/contrib/copy-tex.min.js')
+    }
+  }
+
+  showKatex()
+})()</script><script>(() => {
+  let initFn = window.walineFn || null
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const destroyWaline = ele => ele.destroy()
+
+  const initWaline = (Fn, el = document, path = window.location.pathname) => {
+    const waline = Fn({
+      el: el.querySelector('#waline-wrap'),
+      serverURL: 'https://softpane-comment-4xvg.vercel.app',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      comment: false,
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyWaline = () => {
+        destroyWaline(waline)
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const loadWaline = (el, path) => {
+    if (initFn) initWaline(initFn, el, path)
+    else {
+      btf.getCSS('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.css')
+        .then(() => import('https://cdn.jsdelivr.net/npm/@waline/client@3.8.0/dist/waline.min.js'))
+        .then(({ init }) => {
+          initFn = init || Waline.init
+          initWaline(initFn, el, path)
+          window.walineFn = initFn
+        })
+    }
+  }
+
+  if (isShuoshuo) {
+    'Waline' === 'Waline'
+      ? window.shuoshuoComment = { loadComment: loadWaline } 
+      : window.loadOtherComment = loadWaline
+    return
+  }
+
+  if ('Waline' === 'Waline' || !false) {
+    if (false) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+    else setTimeout(loadWaline, 0)
+  } else {
+    window.loadOtherComment = loadWaline
+  }
+})()</script></div><script src="/js/mouse-lines.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js" defer="defer"></script><script>document.addEventListener('DOMContentLoaded', () => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => {
+      try {
+        fn()
+      } catch (err) {
+        console.debug('Pjax callback failed:', err)
+      }
+    })
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      false
+        ? pjax.loadUrl('/404.html')
+        : window.location.href = e.request.responseURL
+    }
+  })
+})</script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="猜你想搜..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.5-b1"></script></div></div></body></html>
